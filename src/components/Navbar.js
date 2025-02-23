@@ -17,12 +17,20 @@ export default function Navbar({ onFilterApply }) {
         </button>
         <span className="ml-2 text-xl font-bold tracking-wide">Travel App</span>
       </div>
-      <div className="hidden md:flex space-x-6">
-        <button className="hover:text-primary-400 transition-colors">
-          Favorites
+      <div className="flex items-center space-x-6">
+        <button
+          className="hidden md:block hover:text-primary-400 transition-colors"
+          onClick={() => setIsModalOpen(true)}
+        >
+          Filter
         </button>
-        <button className="hover:text-primary-400 transition-colors">Cart</button>
-        <button className="hover:text-primary-400 transition-colors">Login</button>
+        <div className="hidden md:flex space-x-6">
+          <button className="hover:text-primary-400 transition-colors">
+            Favorites
+          </button>
+          <button className="hover:text-primary-400 transition-colors">Cart</button>
+          <button className="hover:text-primary-400 transition-colors">Login</button>
+        </div>
       </div>
       {isModalOpen && (
         <FilterModal

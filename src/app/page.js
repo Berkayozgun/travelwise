@@ -8,7 +8,7 @@ import { Toaster } from "sonner";
 const initialData = [
   {
     category: "Tours",
-    title: "Phi Phi, Khai Islands Tour with Speedboat Full Day",
+    title: "Phi Phi Speedboat Full Day",
     location: "Rassada Pier",
     price: 1400,
     theme: "Island Tour",

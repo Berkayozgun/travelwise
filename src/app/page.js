@@ -105,7 +105,7 @@ const initialData = [
 ];
 
 export default function Home() {
-  const [category, setCategory] = useState(null); 
+  const [category, setCategory] = useState(null);
   const [filters, setFilters] = useState({});
 
   const filteredData = useMemo(() => {
@@ -126,9 +126,7 @@ export default function Home() {
 
           if (Array.isArray(value) && value.length === 1) {
             return item[normalizedKey] === value[0];
-          }
-         
-          else if (Array.isArray(value)) {
+          } else if (Array.isArray(value)) {
             return value.some((val) => item[normalizedKey]?.includes(val));
           }
 
@@ -138,6 +136,7 @@ export default function Home() {
     }
     return result;
   }, [category, filters]);
+
   const handleFilterApply = ({ category, filters = {} }) => {
     setCategory(category);
     setFilters(filters);
@@ -154,41 +153,51 @@ export default function Home() {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-gradient-to-b from-gray-50 to-gray-100'>
       <Navbar onFilterApply={handleFilterApply} />
-      <main className='max-w-7xl mx-auto p-4 sm:p-6 lg:p-8'>
-        <div className='mb-6 text-center'>
-          <h1 className='text-2xl font-bold text-gray-800 mb-2'>
+
+      <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
+        <div className='mb-10 text-center animate-fade-in'>
+          <h1 className='text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight'>
             {getHeaderText()}
           </h1>
-          <p className='text-gray-600'>
+          <p className='text-lg text-gray-600'>
             {filteredData.length} result{filteredData.length !== 1 ? "s" : ""}{" "}
             found
           </p>
         </div>
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-300 ease-in-out'>
           {filteredData.length > 0 ? (
             filteredData.map((item, index) => (
-              <TourCard key={index} tour={item} />
+              <div
+                key={index}
+                className='animate-fade-up'
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                <TourCard tour={item} />
+              </div>
             ))
           ) : (
-            <p className='text-center col-span-full text-gray-500 text-lg font-semibold'>
+            <p className='text-center col-span-full text-gray-500 text-xl font-medium animate-fade-in'>
               No results found. Try adjusting your filters!
             </p>
           )}
         </div>
       </main>
+
       <Toaster
         position='bottom-right'
         toastOptions={{
           style: {
-            background: "#ffffff",
+            background: "rgba(255, 255, 255, 0.95)",
             color: "#1F2937",
             border: "2px solid #F78410",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 1)",
-            padding: "12px 16px",
-            borderRadius: "8px",
+            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.15)",
+            padding: "14px 20px",
+            borderRadius: "12px",
             fontWeight: "500",
+            backdropFilter: "blur(5px)",
           },
           className: "custom-toast",
         }}

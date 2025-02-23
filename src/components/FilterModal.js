@@ -11,22 +11,25 @@ export default function FilterModal({ onClose, onFilterApply }) {
     Tours: [
       {
         name: "Location",
-        options: ["PN Island", "Chalong Temple", "Phuket Jungle"],
+        options: ["Rassada Pier", "Chalong", "Phuket Jungle", "Patong Beach"],
       },
-      { name: "Theme", options: ["Island Tour", "Land Tour", "Safari"] },
+      {
+        name: "Theme",
+        options: ["Island Tour", "Land Tour", "Safari", "Cruise"],
+      },
       {
         name: "Activity",
-        options: ["Swimming", "Snorkelling", "Elephant Care"],
+        options: ["Snorkelling", "Swimming", "Elephant Care", "Sightseeing"],
       },
       { name: "Price", type: "range", min: 0, max: 3000 },
-      { name: "StartTime", options: ["08:00", "12:00", "15:00"] },
+      { name: "StartTime", options: ["08:00", "12:00", "15:00", "17:00"] },
       {
         name: "GroupSize",
         options: ["Small (1-10)", "Medium (11-20)", "Large (21+)"],
       },
       {
         name: "Features",
-        options: ["Transfer", "Halal Food", "Vegetarian Food"],
+        options: ["Transfer", "Vegetarian Food", "Halal Food", "Dinner"],
       },
     ],
     Tickets: [
@@ -36,7 +39,7 @@ export default function FilterModal({ onClose, onFilterApply }) {
       { name: "Features", options: ["Transfer"] },
     ],
     Rent: [
-      { name: "Type", options: ["Car", "Bike"] },
+      { name: "Type", options: ["Bike", "Car"] },
       { name: "Price", type: "range", min: 0, max: 2000 },
       { name: "Features", options: ["Insurance", "GPS"] },
     ],
@@ -44,7 +47,7 @@ export default function FilterModal({ onClose, onFilterApply }) {
       { name: "Vehicle", options: ["Yacht", "Speedboat"] },
       { name: "Price", type: "range", min: 0, max: 5000 },
       { name: "StartTime", options: ["09:00", "14:00"] },
-      { name: "Features", options: ["Transfer", "Refreshments"] },
+      { name: "Features", options: ["Refreshments", "Transfer"] },
     ],
   };
 
@@ -79,14 +82,12 @@ export default function FilterModal({ onClose, onFilterApply }) {
 
   const handleReset = () => {
     setSelectedFilters({});
-    setCategory("Tours");
-    onFilterApply({ filters: {} }); // Tüm verileri geri yükle
+    setCategory(null);
+    onFilterApply({ category: null, filters: {} });
   };
 
   const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
 
   return (
@@ -94,24 +95,24 @@ export default function FilterModal({ onClose, onFilterApply }) {
       className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
       onClick={handleBackdropClick}
     >
-      <div
-        className='bg-white p-4 sm:p-6 rounded-lg w-full max-w-md text-black max-h-[80vh] overflow-y-auto'
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className='flex justify-between items-center mb-4'>
-          <h2 className='text-lg sm:text-xl font-bold'>Filters</h2>
-          <button className='text-2xl hover:text-gray-600' onClick={onClose}>
+      <div className='bg-white p-6 rounded-xl w-full max-w-md max-h-[80vh] overflow-y-auto shadow-xl'>
+        <div className='flex justify-between items-center mb-6'>
+          <h2 className='text-xl font-bold text-gray-800'>Filters</h2>
+          <button
+            className='text-2xl text-gray-600 hover:text-gray-800 transition-colors'
+            onClick={onClose}
+          >
             ✕
           </button>
         </div>
-        <div className='mb-4 flex flex-wrap gap-2'>
+        <div className='mb-6 flex flex-wrap gap-2'>
           {categories.map((cat) => (
             <button
               key={cat}
-              className={`p-2 rounded-md text-sm sm:text-base ${
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 category === cat
-                  ? "bg-primary-400 text-white"
-                  : "bg-gray-200 text-black hover:bg-gray-300"
+                  ? "bg-primary-500 text-white"
+                  : "bg-gray-200 text-gray-800 hover:bg-primary-400 hover:text-white"
               }`}
               onClick={() => {
                 setCategory(cat);
@@ -122,59 +123,61 @@ export default function FilterModal({ onClose, onFilterApply }) {
             </button>
           ))}
         </div>
-        {filters[category].map((filter) => (
-          <div key={filter.name} className='mb-4'>
-            <h3 className='font-semibold text-sm sm:text-base mb-2'>
-              {filter.name}
-            </h3>
-            {filter.type === "range" ? (
-              <div>
-                <input
-                  type='range'
-                  min={filter.min}
-                  max={filter.max}
-                  value={selectedFilters[filter.name] || filter.min}
-                  onChange={(e) =>
-                    handlePriceChange(filter.name, Number(e.target.value))
-                  }
-                  className='w-full'
-                />
-                <span className='text-sm'>
-                  {filter.name === "Price" ? "THB " : ""}
-                  {selectedFilters[filter.name] || filter.min} - {filter.max}
-                </span>
-              </div>
-            ) : (
-              <div className='space-y-2'>
-                {filter.options.map((option) => (
-                  <label key={option} className='flex items-center'>
-                    <input
-                      type='checkbox'
-                      className='mr-2 h-4 w-4'
-                      checked={
-                        selectedFilters[filter.name]?.includes(option) || false
-                      }
-                      onChange={() => handleFilterChange(filter.name, option)}
-                    />
-                    <span className='text-sm sm:text-base'>{option}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-        <div className='flex justify-between mt-4'>
+        {category &&
+          filters[category].map((filter) => (
+            <div key={filter.name} className='mb-4'>
+              <h3 className='font-semibold text-gray-700 mb-2'>
+                {filter.name}
+              </h3>
+              {filter.type === "range" ? (
+                <div>
+                  <input
+                    type='range'
+                    min={filter.min}
+                    max={filter.max}
+                    value={selectedFilters[filter.name] || filter.min}
+                    onChange={(e) =>
+                      handlePriceChange(filter.name, Number(e.target.value))
+                    }
+                    className='w-full accent-primary-500'
+                  />
+                  <span className='text-sm text-gray-600'>
+                    {filter.name === "Price" ? "THB " : ""}
+                    {selectedFilters[filter.name] || filter.min} - {filter.max}
+                  </span>
+                </div>
+              ) : (
+                <div className='space-y-2'>
+                  {filter.options.map((option) => (
+                    <label key={option} className='flex items-center'>
+                      <input
+                        type='checkbox'
+                        className='mr-2 h-4 w-4 text-primary-500 focus:ring-primary-400'
+                        checked={
+                          selectedFilters[filter.name]?.includes(option) ||
+                          false
+                        }
+                        onChange={() => handleFilterChange(filter.name, option)}
+                      />
+                      <span className='text-sm text-gray-700'>{option}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        <div className='flex justify-between mt-6'>
           <button
-            className='bg-gray-300 p-2 rounded text-black hover:bg-gray-400 text-sm sm:text-base'
+            className='bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors'
             onClick={handleReset}
           >
             Reset
           </button>
           <button
-            className='bg-primary-500 p-2 rounded text-white hover:bg-primary-600 text-sm sm:text-base'
+            className='bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600 transition-colors'
             onClick={handleSearch}
           >
-            Search
+            Apply Filters
           </button>
         </div>
       </div>

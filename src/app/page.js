@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Navbar from "../components/Navbar";
 import TourCard from "../components/TourCard";
+import { Toaster } from "sonner";
 
 const initialData = [
-  // Tours Kategorisi
   {
     category: "Tours",
     title: "Phi Phi, Khai Islands Tour with Speedboat Full Day",
@@ -39,7 +39,17 @@ const initialData = [
     groupSize: "Large (21+)",
     features: ["Halal Food"],
   },
-  // Tickets Kategorisi
+  {
+    category: "Tours",
+    title: "Sunset Cruise",
+    location: "Patong Beach",
+    price: 1800,
+    theme: "Cruise",
+    activity: "Sightseeing",
+    startTime: "17:00",
+    groupSize: "Medium (11-20)",
+    features: ["Dinner"],
+  },
   {
     category: "Tickets",
     title: "Phuket Cultural Concert",
@@ -58,7 +68,6 @@ const initialData = [
     startTime: "20:00",
     features: [],
   },
-  // Rent Kategorisi
   {
     category: "Rent",
     title: "Scooter Rental - Full Day",
@@ -75,7 +84,6 @@ const initialData = [
     type: "Car",
     features: ["GPS"],
   },
-  // Transfer Kategorisi
   {
     category: "Transfer",
     title: "Yacht Transfer to Phi Phi",
@@ -97,52 +105,94 @@ const initialData = [
 ];
 
 export default function Home() {
-  const [filteredData, setFilteredData] = useState(initialData);
+  const [category, setCategory] = useState(null); 
+  const [filters, setFilters] = useState({});
 
-  const handleFilterApply = ({ category, filters }) => {
-    // Eğer filtreler boşsa ve kategori belirtilmemişse, tüm verileri döndür
-    if (!filters || Object.keys(filters).length === 0) {
-      setFilteredData(initialData);
-      return;
-    }
-
-    let result = initialData.filter((item) => item.category === category);
+  const filteredData = useMemo(() => {
+    let result = category
+      ? initialData.filter((item) => item.category === category)
+      : initialData;
 
     if (Object.keys(filters).length > 0) {
-      result = result.filter((item) => {
-        return Object.entries(filters).every(([key, value]) => {
+      result = result.filter((item) =>
+        Object.entries(filters).every(([key, value]) => {
+          const normalizedKey = key.toLowerCase();
           if (!value || (Array.isArray(value) && value.length === 0))
             return true;
-          if (key === "Price") return item.price <= value;
-          if (Array.isArray(value))
-            return value.every((val) => item[key.toLowerCase()]?.includes(val));
-          return item[key.toLowerCase()] === value;
-        });
-      });
-    }
 
-    setFilteredData(result);
+          if (normalizedKey === "price") {
+            return item.price <= value;
+          }
+
+          if (Array.isArray(value) && value.length === 1) {
+            return item[normalizedKey] === value[0];
+          }
+         
+          else if (Array.isArray(value)) {
+            return value.some((val) => item[normalizedKey]?.includes(val));
+          }
+
+          return item[normalizedKey] === value;
+        })
+      );
+    }
+    return result;
+  }, [category, filters]);
+  const handleFilterApply = ({ category, filters = {} }) => {
+    setCategory(category);
+    setFilters(filters);
+  };
+
+  const getHeaderText = () => {
+    if (!category && Object.keys(filters).length === 0) {
+      return "All Travel Options";
+    }
+    if (category && Object.keys(filters).length === 0) {
+      return `${category} Options`;
+    }
+    return `Filtered ${category} Options`;
   };
 
   return (
-    <div className='min-h-screen bg-gray-100'>
+    <div className='min-h-screen bg-gray-50'>
       <Navbar onFilterApply={handleFilterApply} />
       <main className='max-w-7xl mx-auto p-4 sm:p-6 lg:p-8'>
-        <div className='mb-4 text-center'>
-          <p className='text-gray-700'>{filteredData.length} results found</p>
+        <div className='mb-6 text-center'>
+          <h1 className='text-2xl font-bold text-gray-800 mb-2'>
+            {getHeaderText()}
+          </h1>
+          <p className='text-gray-600'>
+            {filteredData.length} result{filteredData.length !== 1 ? "s" : ""}{" "}
+            found
+          </p>
         </div>
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
           {filteredData.length > 0 ? (
             filteredData.map((item, index) => (
               <TourCard key={index} tour={item} />
             ))
           ) : (
-            <p className='text-center col-span-full text-gray-500'>
-              No results found.
+            <p className='text-center col-span-full text-gray-500 text-lg font-semibold'>
+              No results found. Try adjusting your filters!
             </p>
           )}
         </div>
       </main>
+      <Toaster
+        position='bottom-right'
+        toastOptions={{
+          style: {
+            background: "#ffffff",
+            color: "#1F2937",
+            border: "2px solid #F78410",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 1)",
+            padding: "12px 16px",
+            borderRadius: "8px",
+            fontWeight: "500",
+          },
+          className: "custom-toast",
+        }}
+      />
     </div>
   );
 }
